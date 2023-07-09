@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Group-Chat_App</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Sign-Up Here</h1>
+        <form id="my-form">
+            <div class="msg"></div>
+            <div>
+                <label for="name">Enter Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name here..." required>
+            </div>
+
+            <div>
+                <label for="email">Enter Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email here..." required>
+            </div>
+
+            <div>
+            <label for="phone">Enter Phone Number:</label>
+            <input type="phone" id="phone" name="phone" placeholder="xxxxx xxxxx" required>
+            </div>
+
+            <div>
+                <label for="password">Enter Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password here..."
+                    required>
+            </div>
+
+            <input id="submit" type="submit" value="Sign Up" class="btn">
+            <p id="error-message"></p>
+        </form>
+
+        <p>Existing user? <a href="/login">Login</a></p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="signup.js"></script>
+</body>
+</html>
