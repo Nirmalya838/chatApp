@@ -29,12 +29,12 @@ exports.postCheckUser = async(req,res,next)=>{
                     res.status(200).json({message:"successfully login",token:generateAccessToken(user[0].id,user[0].email,user[0].name)});
                 }
                 else{
-                    return res.status(400).json({message:"password is wrong"});
+                    return res.status(401).json({message:"password is wrong, user is not authorized!"});
                 }
             })
         }
         else{
-            return res.status(400).json({message:"user does not exist"})
+            return res.status(404).json({message:"user does not exist!"})
         }
     }
     catch(err){
