@@ -10,8 +10,10 @@ methods: ['GET', 'POST']}));
 
 const sequelize = require('./util/database');
 const signupRouter = require('./routes/signupRoute');
+const loginRouter = require('./routes/loginRoute');
 
 app.use(signupRouter);
+app.use(loginRouter);
 
 sequelize.sync()
 .then(result=>{
