@@ -27,6 +27,35 @@ function outputUserJoined(username) {
   userlist.appendChild(user);
 }
 
+document.getElementById('add-chat').addEventListener('click', addChat);
+
+async function addChat(event) {
+  event.preventDefault();
+
+  const msg = document.getElementById('msg').value;
+  const token = sessionStorage.getItem("token");
+  const user = parseJwt(token);
+  
+  
+
+  const obj = {
+    message: msg,
+    userId: user.userId
+  };
+  try {
+    let response = await axios.post(
+      "/add-chat/",
+      obj,
+      { headers: { Authorization: token } }
+    );
+    document.getElementById("msg").value='';
+    console.log('msg saved in DB');
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
 window.addEventListener('DOMContentLoaded', async () => {
   let token = localStorage.getItem("token");
   const decode = parseJwt(token);
@@ -52,30 +81,25 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function updateUsersList(loggedInUsers) {
     const userlist = document.getElementById('userlist');
-    userlist.innerHTML = ''; // Clear existing user list
+    userlist.innerHTML = ''; 
 
     for (const username of loggedInUsers) {
       outputUserJoined(username);
     }
   }
 
-  // Initial update of user list
   const loggedInUsers = JSON.parse(localStorage.getItem('loggedInUsers')) || [];
   updateUsersList(loggedInUsers);
-
-  // Add the current user to the list of logged-in users
   loggedInUsers.push(name);
   localStorage.setItem('loggedInUsers', JSON.stringify(loggedInUsers));
 
   document.getElementById('log').addEventListener('click', () => {
-    // Remove the current user from the list of logged-in users
     const loggedInUsers = JSON.parse(localStorage.getItem('loggedInUsers')) || [];
     const index = loggedInUsers.indexOf(name);
     if (index > -1) {
       loggedInUsers.splice(index, 1);
       localStorage.setItem('loggedInUsers', JSON.stringify(loggedInUsers));
     }
-    
     window.location.href = '/login';
   });
 });

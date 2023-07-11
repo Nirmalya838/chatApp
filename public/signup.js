@@ -24,6 +24,7 @@ async function AddUser(event) {
       const errorElement = document.getElementById('error-message');
       if (err.response.status == 400) {
         errorElement.textContent = "Email already exists!";
+        errorElement.style.color = "red";
       } else {
         errorElement.textContent = "An error occurred. Please try again later.";
       }

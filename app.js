@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
+
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname,"public")))
@@ -9,6 +10,8 @@ app.use(express.static(path.join(__dirname,"public")))
 app.use(cors({origin: 'http://127.0.0.1:3000',
 methods: ['GET', 'POST']}));
 
+const User = require('./models/user');
+const Message = require('./models/message');
 const sequelize = require('./util/database');
 const signupRouter = require('./routes/signupRoute');
 const loginRouter = require('./routes/loginRoute');
@@ -17,6 +20,9 @@ const chatRouter = require('./routes/chatRoute');
 app.use(signupRouter);
 app.use(loginRouter);
 app.use(chatRouter);
+
+User.hasMany(Message);
+Message.belongsTo(User);
 
 sequelize.sync()
 .then(result=>{
