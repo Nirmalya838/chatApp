@@ -17,6 +17,7 @@ exports.addChat = async (req, res, next) => {
       {
         message: msg,
         userId: req.user.id,
+        username: req.user.name
       },
 
       { transaction: t }
@@ -26,5 +27,15 @@ exports.addChat = async (req, res, next) => {
   } catch (err) {
     await t.rollback();
     console.log(err);
+  }
+};
+
+exports.getAllMesssages = async (req, res, next) => {
+  try {
+    const messages = await Message.findAll();
+    res.status(200).json(messages);
+  } catch (error) {
+    console.error('Error retrieving messages:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };

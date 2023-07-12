@@ -40,7 +40,8 @@ async function addChat(event) {
 
   const obj = {
     message: msg,
-    userId: user.userId
+    userId: user.userId,
+    username: user.username
   };
   try {
     let response = await axios.post(
@@ -81,7 +82,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   function updateUsersList(loggedInUsers) {
     const userlist = document.getElementById('userlist');
-    userlist.innerHTML = ''; 
+    userlist.innerHTML = '';
 
     for (const username of loggedInUsers) {
       outputUserJoined(username);
@@ -102,4 +103,21 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     window.location.href = '/login';
   });
+
+  const messageList = document.getElementById('message-list');
+
+  axios.get('/get-chat')
+    .then(response => {
+      const messages = response.data;
+      messageList.innerHTML = '';
+
+      messages.forEach(message => {
+        const listItem = document.createElement('li');
+        listItem.setAttribute('id', `message-item-${message.id}`);
+        const date = new Date(message.date).toLocaleDateString();
+
+        listItem.innerHTML = `<strong>${message.username}</strong> ${message.message}`;
+        messageList.appendChild(listItem);
+      });
+    });
 });

@@ -8,4 +8,6 @@ router.get('/chat/',chatController.getHomePage);
 
 router.post('/add-chat', authentication.authenticated, chatController.addChat);
 
+router.get('/get-chat', chatController.getAllMesssages);
+
 module.exports=router;
