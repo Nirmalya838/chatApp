@@ -106,6 +106,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const messageList = document.getElementById('message-list');
 
+  function getNewMessages() {
   axios.get('/get-chat')
     .then(response => {
       const messages = response.data;
@@ -119,5 +120,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         listItem.innerHTML = `<strong>${message.username}</strong> ${message.message}`;
         messageList.appendChild(listItem);
       });
+    })
+    .catch(error => {
+      console.error('Error retrieving messages:', error);
     });
+  }
+      setInterval(getNewMessages, 1000);
 });
