@@ -19,21 +19,31 @@ exports.addChat = async (req, res, next) => {
         userId: req.user.id,
         username: req.user.name
       },
-
       { transaction: t }
     );
+
+    // Only retrieve the latest 10 messages
+    const messages = await Message.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 10
+    });
+
     await t.commit();
-    res.status(201).json({ newMessage: result });
+    res.status(201).json(messages);
   } catch (err) {
     await t.rollback();
     console.log(err);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
 exports.getAllMesssages = async (req, res, next) => {
   try {
-    const messages = await Message.findAll();
-    res.status(200).json(messages);
+    const messages = await Message.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 10
+    });
+    res.status(200).json(messages.reverse());
   } catch (error) {
     console.error('Error retrieving messages:', error);
     res.status(500).json({ message: 'Internal Server Error' });

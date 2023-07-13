@@ -27,7 +27,9 @@ function outputUserJoined(username) {
   userlist.appendChild(user);
 }
 
-document.getElementById('add-chat').addEventListener('click', addChat);
+const messageList = document.getElementById('message-list');
+
+document.getElementById('chat-form').addEventListener('submit', addChat);
 
 async function addChat(event) {
   event.preventDefault();
@@ -35,27 +37,30 @@ async function addChat(event) {
   const msg = document.getElementById('msg').value;
   const token = sessionStorage.getItem("token");
   const user = parseJwt(token);
-  
-  
 
   const obj = {
     message: msg,
     userId: user.userId,
     username: user.username
   };
+
   try {
     let response = await axios.post(
-      "/add-chat/",
+      "/add-chat",
       obj,
       { headers: { Authorization: token } }
     );
-    document.getElementById("msg").value='';
-    console.log('msg saved in DB');
+
+    const newMessages = response.data;
+    const messages = newMessages.slice(-10); // Only store the last 10 messages
+
+    localStorage.setItem('messages', JSON.stringify(messages));
+    document.getElementById('msg').value = '';
+    document.getElementById('msg').focus();
   } catch (err) {
     console.log(err);
   }
 }
-
 
 window.addEventListener('DOMContentLoaded', async () => {
   let token = localStorage.getItem("token");
@@ -63,67 +68,56 @@ window.addEventListener('DOMContentLoaded', async () => {
   const name = decode.username;
   outputUserJoined(name);
 
-  const chatForm = document.getElementById('chat-form');
-  chatForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const msg = e.target.elements.msg.value;
-    const currentTime = getCurrentTime();
-    outputMessage({ message: msg, sender: name, time: currentTime });
-    document.getElementById('msg').value = '';
-    document.getElementById('msg').focus();
-  });
+  function outputMessage({ id, message, username }) {
+    const chatMessage = { id, message, username };
+    let messages = JSON.parse(localStorage.getItem('messages')) || [];
+    messages.push(chatMessage);
 
-  window.addEventListener('storage', (event) => {
-    if (event.key === 'loggedInUsers') {
-      const loggedInUsers = JSON.parse(event.newValue);
-      updateUsersList(loggedInUsers);
+    if (messages.length > 10) {
+      messages = messages.slice(messages.length - 10);
     }
-  });
 
-  function updateUsersList(loggedInUsers) {
-    const userlist = document.getElementById('userlist');
-    userlist.innerHTML = '';
-
-    for (const username of loggedInUsers) {
-      outputUserJoined(username);
-    }
+    localStorage.setItem('messages', JSON.stringify(messages));
+    appendMessage(chatMessage);
   }
 
-  const loggedInUsers = JSON.parse(localStorage.getItem('loggedInUsers')) || [];
-  updateUsersList(loggedInUsers);
-  loggedInUsers.push(name);
-  localStorage.setItem('loggedInUsers', JSON.stringify(loggedInUsers));
+  function appendMessage({ message, username }) {
+    const listItem = document.createElement('li');
+    listItem.innerHTML = `<strong>${username}</strong> ${message}`;
+    messageList.appendChild(listItem);
+  }
 
-  document.getElementById('log').addEventListener('click', () => {
-    const loggedInUsers = JSON.parse(localStorage.getItem('loggedInUsers')) || [];
-    const index = loggedInUsers.indexOf(name);
-    if (index > -1) {
-      loggedInUsers.splice(index, 1);
-      localStorage.setItem('loggedInUsers', JSON.stringify(loggedInUsers));
-    }
-    window.location.href = '/login';
-  });
+  function loadMessagesFromLocalStorage() {
+    const messages = JSON.parse(localStorage.getItem('messages')) || [];
+    messageList.innerHTML = '';
 
-  const messageList = document.getElementById('message-list');
-
-  function getNewMessages() {
-  axios.get('/get-chat')
-    .then(response => {
-      const messages = response.data;
-      messageList.innerHTML = '';
-
-      messages.forEach(message => {
-        const listItem = document.createElement('li');
-        listItem.setAttribute('id', `message-item-${message.id}`);
-        const date = new Date(message.date).toLocaleDateString();
-
-        listItem.innerHTML = `<strong>${message.username}</strong> ${message.message}`;
-        messageList.appendChild(listItem);
-      });
-    })
-    .catch(error => {
-      console.error('Error retrieving messages:', error);
+    messages.forEach(message => {
+      appendMessage(message);
     });
   }
-      setInterval(getNewMessages, 1000);
+
+  function getNewMessages() {
+    axios.get('/get-chat')
+      .then(response => {
+        const newMessages = response.data;
+        const messages = newMessages.slice(-10); // Only retrieve the last 10 messages
+
+        localStorage.setItem('messages', JSON.stringify(messages));
+        messageList.innerHTML = '';
+
+        messages.forEach(message => {
+          appendMessage(message);
+        });
+      })
+      .catch(error => {
+        console.error('Error retrieving messages:', error);
+      });
+  }
+
+  loadMessagesFromLocalStorage();
+  setInterval(getNewMessages, 1000);
+
+  document.getElementById('log').addEventListener('click', ()=>{
+    window.location.href = '/login';
+  })
 });
