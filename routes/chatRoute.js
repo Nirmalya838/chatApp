@@ -12,4 +12,6 @@ router.get('/get-chat', chatController.getAllMesssages);
 
 router.get('/all-users', chatController.getAllUsers);
 
+router.get('/participatedGroups', chatController.getGroupData);
+
 module.exports=router;

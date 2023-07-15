@@ -39,13 +39,14 @@ function parseJwt(token) {
         const response = await axios.post('/createGroup/', groupData, {
           headers: { Authorization: token }
         });
-    
+        alert('Group Created successfully!');
         console.log('Group created:', response.data);
         // Optionally, you can perform additional actions after group creation
       } catch (error) {
         console.error('Error creating group:', error);
       }
   }
+
   
   
   

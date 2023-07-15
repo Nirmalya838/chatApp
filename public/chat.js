@@ -163,6 +163,51 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
   
-  
+  async function displayGroupNames() {
+    try {
+      const response = await axios.get("/participatedGroups");
+    
+      if (response.status === 200) {
+        const participationData = response.data;
+        const groupData = participationData.groupData;
+        const userId = decode.userId; // Assuming 'decode' contains the user information
+        
+        const associatedGroupData = groupData.filter(group => group.userId === userId);
+        const groupNames = associatedGroupData.map(group => group.GroupGroupId);
+    
+        const groupContainer = document.getElementById("grouplist");
+        groupContainer.innerHTML = "";
+    
+        groupNames.forEach(groupName => {
+          const button = document.createElement("button");
+          button.textContent = groupName;
+          button.classList.add("group-button");
+          button.style.margin = "5px";
+          button.style.padding = "10px";
+          button.style.backgroundColor = "red";
+          button.style.color = "white";
+          button.style.border = "none";
+          button.style.cursor = "pointer";
+          button.addEventListener("mouseenter", () => {
+            button.style.backgroundColor = "blue";
+          });
+          
+          button.addEventListener("mouseleave", () => {
+            button.style.backgroundColor = "red";
+          });
+          groupContainer.appendChild(button);
+
+        });
+      } else {
+        console.error("Failed to retrieve user participation data");
+      }
+    } catch (error) {
+      console.error("Error occurred while retrieving user participation data", error);
+    }
+  }
+    
+  displayGroupNames();
+    
+
 });
 

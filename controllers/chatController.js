@@ -3,6 +3,8 @@ const sequelize = require("../util/database");
 const { json } = require("sequelize");
 const User = require("../models/user");
 const Message = require('../models/message');
+const Group = require('../models/group');
+const GroupUser = require('../models/groupUser');
 
 exports.getHomePage = (req, res, next) => {
   res.sendFile(path.join(__dirname, "../views/chat.html"));
@@ -59,3 +61,19 @@ exports.getAllUsers =  async (req, res, next) => {
     res.status(500).json({ error: 'Failed to retrieve users' });
   }
 };
+
+exports.getGroupData = async (req, res, next) => {
+  try {
+    const groupData = await GroupUser.findAll();
+
+    if (!groupData || groupData.length === 0) {
+      return res.status(404).json({ error: 'No group data found' });
+    }
+
+    res.json({ groupData });
+  } catch (error) {
+    console.error('Error occurred while retrieving group data:', error);
+    res.status(500).json({ error: 'An error occurred' });
+  }
+};
+
