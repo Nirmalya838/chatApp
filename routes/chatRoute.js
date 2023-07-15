@@ -10,4 +10,6 @@ router.post('/add-chat', authentication.authenticated, chatController.addChat);
 
 router.get('/get-chat', chatController.getAllMesssages);
 
+router.get('/all-users', chatController.getAllUsers);
+
 module.exports=router;

@@ -28,9 +28,26 @@
             </form>
         </div>
     </div>
+    <button id="topLeftButton">Create Group</button>
+
+    <div id="popup" class="popup">
+        <span class="close" id="close">&times;</span>
+      <form>
+        <div class="form-group">
+          <label for="name">Group Name:</label>
+          <input type="text" id="group_name" name="group_name" placeholder="Enter Group Name" required>
+        </div>
+        <div class="form-group">
+            <label for="checkbox">Checkbox:</label>
+            <div name="participants" id="checkboxOptions"></div>
+          </div>
+        <button class="btn" id="submit">Create</button>
+      </form>
+    </div>
     <button id="log">Leave Chat</button>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/chat.js"></script>
+    <script src="/group.js"></script>
 </body>
 
 </html>

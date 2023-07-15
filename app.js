@@ -12,17 +12,24 @@ methods: ['GET', 'POST']}));
 
 const User = require('./models/user');
 const Message = require('./models/message');
+const Group = require('./models/group');
 const sequelize = require('./util/database');
 const signupRouter = require('./routes/signupRoute');
 const loginRouter = require('./routes/loginRoute');
 const chatRouter = require('./routes/chatRoute');
+const groupRouter = require('./routes/groupRoute');
 
 app.use(signupRouter);
 app.use(loginRouter);
 app.use(chatRouter);
+app.use(groupRouter);
 
 User.hasMany(Message);
 Message.belongsTo(User);
+
+
+Group.belongsToMany(User, { through: 'GroupUser' });
+User.belongsToMany(Group, { through: 'GroupUser' });
 
 sequelize.sync()
 .then(result=>{

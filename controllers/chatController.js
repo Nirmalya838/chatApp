@@ -49,3 +49,13 @@ exports.getAllMesssages = async (req, res, next) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+exports.getAllUsers =  async (req, res, next) => {
+  try {
+    const users = await User.findAll({}, 'name');
+    res.json(users);
+  } catch (error) {
+    console.error('Error retrieving users:', error);
+    res.status(500).json({ error: 'Failed to retrieve users' });
+  }
+};

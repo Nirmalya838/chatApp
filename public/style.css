@@ -182,7 +182,78 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    
+
+    #topLeftButton {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background-color: #2613d8;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 6px;
+        border: 1px solid #ccc;  
+        font-size: large;
+        font-family: Georgia, 'Times New Roman', Times, serif;  
+      }
+      
+      #topLeftButton:hover {
+        background-color: #599347;
+      } 
+
+      .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #df9494;
+        padding: 50px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        width: 400px;
+        max-width: 90%;
+      }
+      
+      .popup form {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+      }
+      
+      .popup .form-group {
+        margin-bottom: 15px;
+      }
+      
+      .popup label {
+        margin-bottom: 5px;
+        display: block;
+      }
+      
+      .close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #888;
+      }
+      
+      .close:hover {
+        color: #000;
+      }  
+      
+      .checkbox-container {
+        margin-bottom: 10px; /* Adjust the margin as needed */
+      }
+      
+      input[type="checkbox"] {
+        margin-right: 5px; /* Adjust the margin as needed */
+      }
+      
     @media screen and (max-width: 601px) {
       #log {
         font-size: medium;
