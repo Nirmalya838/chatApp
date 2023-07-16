@@ -226,3 +226,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     
 });
 
+
+// async function promoteUserToAdmin(groupId, userId) {
+//   try {
+//     const response = await axios.post(`/groups/${groupId}/makeAdmin/${userId}`);
+//     console.log(response.data.message);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
+// promoteUserToAdmin('group123', 'user456');
+
+

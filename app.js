@@ -31,6 +31,7 @@ Message.belongsTo(User);
 Group.hasMany(Message);
 Message.belongsTo(Group);
 
+Group.belongsTo(User, { as: 'admin' });
 Group.belongsToMany(User, { through: 'GroupUser' });
 User.belongsToMany(Group, { through: 'GroupUser' });
 

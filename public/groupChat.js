@@ -1,4 +1,18 @@
 document.addEventListener('DOMContentLoaded', async () => {
+
+  
+    let token = sessionStorage.getItem("token");
+    const decode = parseJwt(token);    
+    const userId = decode.userId;
+    console.log(userId);
+  try {
+    let response = await axios.get('/getgroupdetails')
+    const groupdetails = response.data;
+    console.log(groupdetails);
+  } catch (err) {
+    console.err(err);
+  }
+
   const url = new URL(window.location.href);
   const pathname = url.pathname;
   const groupName = decodeURIComponent(pathname.substring(pathname.lastIndexOf('/') + 1).split('+').pop());
@@ -29,9 +43,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       );
       document.getElementById('grpMsg').value = '';
       document.getElementById('grpMsg').focus();
-
-      // Refresh the displayed messages after posting a new message
-      await displayGroupMessages();
     } catch (err) {
       console.log(err);
     }
@@ -64,9 +75,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Call the function to load and display group messages
-  await displayGroupMessages();
-
   // Refresh the displayed messages periodically
   setInterval(async () => {
     await getGroupMessages();
@@ -74,7 +82,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }, 1000);
 
   document.getElementById('leaveGroup').addEventListener('click', () => {
-    // Go back to the previous route
     window.location.href = document.referrer;
   });
   

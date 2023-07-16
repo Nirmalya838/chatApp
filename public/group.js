@@ -25,7 +25,6 @@ function parseJwt(token) {
     const token = sessionStorage.getItem("token");
     const user = parseJwt(token);
   
-    // Create an object with the group data
     const groupData = {
       group_name: name,
       participants: participants,
@@ -35,13 +34,11 @@ function parseJwt(token) {
     console.log(groupData);
     
     try {
-        // Send the group data to the server using axios with async/await
         const response = await axios.post('/createGroup/', groupData, {
           headers: { Authorization: token }
         });
         alert('Group Created successfully!');
         console.log('Group created:', response.data);
-        // Optionally, you can perform additional actions after group creation
       } catch (error) {
         console.error('Error creating group:', error);
       }
