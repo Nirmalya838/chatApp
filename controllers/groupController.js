@@ -39,6 +39,7 @@ exports.createGroup = async (req, res, next) => {
   exports.getGroupNames = async (req, res, next) => {
     try {
       const groupName = await Group.findAll();
+      
   
       if (!groupName || groupName.length === 0) {
         return res.status(404).json({ error: 'No group data found' });
@@ -67,14 +68,29 @@ exports.createGroup = async (req, res, next) => {
     }
   }
 
-  exports.getGroupDetails = async (req, res, next) => {
+  exports.getGroupMembers = async (req, res, next) => {
     try {
-      const users = await Group.findAll();
-      res.status(200).json({ users });
+      const groupId = req.params.groupId;
+      const group = await Group.findByPk(groupId, {
+        include: {
+          model: User,
+          attributes: ['name'],
+        },
+      });
+  
+      if (!group) {
+        return res.status(404).json({ message: 'Group not found' });
+      }
+      const members = group.users.map(user => ({
+        id: user.id,
+        name: user.name,
+      }));
+      
+      res.status(200).json({ members });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Internal server error' });
     }
-  }
+  };
   
   

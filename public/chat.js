@@ -69,6 +69,9 @@ async function addChat(event) {
 
 
 window.addEventListener('DOMContentLoaded', async () => {
+  
+
+
   let token = localStorage.getItem("token");
   const decode = parseJwt(token);
   const name = decode.username;
@@ -221,10 +224,24 @@ window.addEventListener('DOMContentLoaded', async () => {
   displayGroupNames();
 
   function handleGroupButtonClick(groupId, groupName) {
-    window.location.href = `/group-chat/${groupId}+${groupName}`;
-    }
+    //window.location.href = `/group-chat/${groupId}+${groupName}`;
     
+    // Add code to fetch and display group members' names
+    fetch(`/groups/${groupId}/members`)
+      .then(response => response.json())
+      .then(data => {
+        const members = data.members;
+        sessionStorage.setItem('groupMembers', JSON.stringify(members));
+        window.location.href = `/group-chat/${groupId}+${groupName}`;
+        console.log('Group Members:', members);
+        // showMembers();
+      })
+      .catch(error => console.error('Error retrieving group members:', error));
+  }
+   
 });
+
+
 
 
 // async function promoteUserToAdmin(groupId, userId) {

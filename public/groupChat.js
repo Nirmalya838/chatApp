@@ -1,17 +1,22 @@
 document.addEventListener('DOMContentLoaded', async () => {
-
   
-    let token = sessionStorage.getItem("token");
-    const decode = parseJwt(token);    
-    const userId = decode.userId;
-    console.log(userId);
-  try {
-    let response = await axios.get('/getgroupdetails')
-    const groupdetails = response.data;
-    console.log(groupdetails);
-  } catch (err) {
-    console.err(err);
+  
+  function showMembers(){
+    const groupMembers = sessionStorage.getItem('groupMembers');
+    const members = JSON.parse(groupMembers);
+    const memberList = document.getElementById('groupuserlist');
+    members.forEach(member => {
+      const listItem = document.createElement('li');
+      listItem.textContent = member.name;
+      const button = document.createElement('button');
+      button.textContent = 'Delete User';
+      button.id =`deleteButton_${member.id}`;
+      listItem.appendChild(button);
+      memberList.appendChild(listItem);
+    });
   }
+
+  showMembers();
 
   const url = new URL(window.location.href);
   const pathname = url.pathname;

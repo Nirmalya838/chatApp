@@ -11,7 +11,7 @@ router.get('/group-chat/:id', groupController.groupChatPage);
 
 router.get('/groupusers', groupController.groupUsers);
 
-router.get('/getgroupdetails', groupController.getGroupDetails);
+router.get('/groups/:groupId/members',groupController.getGroupMembers);
 
 
 // // Route to promote a user to admin within a group
@@ -54,8 +54,5 @@ router.get('/getgroupdetails', groupController.getGroupDetails);
 //     res.status(500).json({ message: 'Internal server error' });
 //   }
 // });
-
-module.exports = router;
-
 
 module.exports=router;
