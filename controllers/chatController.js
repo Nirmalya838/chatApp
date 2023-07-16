@@ -12,6 +12,7 @@ exports.getHomePage = (req, res, next) => {
 
 exports.addChat = async (req, res, next) => {
   const msg = req.body.message;
+  const groupId = req.body.groupId;
 
   const t = await sequelize.transaction();
   try {
@@ -19,7 +20,8 @@ exports.addChat = async (req, res, next) => {
       {
         message: msg,
         userId: req.user.id,
-        username: req.user.name
+        username: req.user.name,
+        GroupGroupId: groupId,
       },
       { transaction: t }
     );
@@ -43,7 +45,6 @@ exports.getAllMesssages = async (req, res, next) => {
   try {
     const messages = await Message.findAll({
       order: [['createdAt', 'DESC']],
-      limit: 10
     });
     res.status(200).json(messages.reverse());
   } catch (error) {

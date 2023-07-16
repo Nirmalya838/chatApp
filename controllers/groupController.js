@@ -25,4 +25,26 @@ exports.createGroup = async (req, res, next) => {
     }
   };
 
+  exports.getGroupNames = async (req, res, next) => {
+    try {
+      const groupName = await Group.findAll();
+  
+      if (!groupName || groupName.length === 0) {
+        return res.status(404).json({ error: 'No group data found' });
+      }
+  
+      res.json({ groupName });
+    } catch (error) {
+      console.error('Error occurred while retrieving group data:', error);
+      res.status(500).json({ error: 'An error occurred' });
+    }
+  };
+
+  exports.groupChatPage = async (req, res, next) => {
+    const groupId = req.params.groupId;
+    
+    res.sendFile(path.join(__dirname, '../views/groupChat.html'));
+  };
+
+  
   

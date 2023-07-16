@@ -5,4 +5,8 @@ const groupController = require('../controllers/groupController');
 
 router.post('/createGroup', authentication.authenticated, groupController.createGroup);
 
+router.get('/group-names', groupController.getGroupNames);
+
+router.get('/group-chat/:id', groupController.groupChatPage);
+
 module.exports=router;

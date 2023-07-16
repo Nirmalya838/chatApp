@@ -28,6 +28,9 @@ app.use(groupRouter);
 User.hasMany(Message);
 Message.belongsTo(User);
 
+Group.hasMany(Message);
+Message.belongsTo(Group);
+
 Group.belongsToMany(User, { through: 'GroupUser' });
 User.belongsToMany(Group, { through: 'GroupUser' });
 

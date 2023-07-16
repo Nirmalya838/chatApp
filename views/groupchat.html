@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Chat Dashboard</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <div>
+            <h1>Chat App</h1>
+        </div>
+        <ul id="userlist"></ul>
+        <div>
+          <h3 id="groupName"></h3>
+        </div>
+        <div class="chat-messages">
+            <div>
+                <h2>All Messages:</h2>
+                <ul id="groupMessage-list"></ul>
+              </div>
+        </div>
+        <div class="chat-form-container">
+            <form id="chat-form">
+                <input type="text" id="grpMsg" placeholder="enter message" autocomplete="off" name="message" required>
+                <button class="btn" id="add-groupchat">send</button>
+            </form>
+        </div>
+    </div>
+    <button id="leaveGroup" class="leave">Back</button>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/chat.js"></script>
+    <script src="/groupChat.js"></script>
+</body>
+
+</html>

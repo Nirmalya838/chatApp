@@ -41,7 +41,8 @@ async function addChat(event) {
   const obj = {
     message: msg,
     userId: user.userId,
-    username: user.username
+    username: user.username,
+    GroupGroupId: null 
   };
 
   try {
@@ -52,9 +53,13 @@ async function addChat(event) {
     );
 
     const newMessages = response.data;
-    const messages = newMessages.slice(-10); // Only store the last 10 messages
+    const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
 
-    localStorage.setItem('messages', JSON.stringify(messages));
+    // Filter and store only messages with null groupId
+    const filteredMessages = storedMessages.filter(message => message.GroupGroupId === null);
+    const updatedMessages = [...filteredMessages, ...newMessages].slice(-10);
+
+    localStorage.setItem('messages', JSON.stringify(updatedMessages));
     document.getElementById('msg').value = '';
     document.getElementById('msg').focus();
   } catch (err) {
@@ -62,24 +67,13 @@ async function addChat(event) {
   }
 }
 
+
 window.addEventListener('DOMContentLoaded', async () => {
   let token = localStorage.getItem("token");
   const decode = parseJwt(token);
   const name = decode.username;
   outputUserJoined(name);
-
-  function outputMessage({ id, message, username }) {
-    const chatMessage = { id, message, username };
-    let messages = JSON.parse(localStorage.getItem('messages')) || [];
-    messages.push(chatMessage);
-
-    if (messages.length > 10) {
-      messages = messages.slice(messages.length - 10);
-    }
-
-    localStorage.setItem('messages', JSON.stringify(messages));
-    appendMessage(chatMessage);
-  }
+ 
 
   function appendMessage({ message, username }) {
     const listItem = document.createElement('li');
@@ -100,12 +94,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     axios.get('/get-chat')
       .then(response => {
         const newMessages = response.data;
-        const messages = newMessages.slice(-10); // Only retrieve the last 10 messages
-
-        localStorage.setItem('messages', JSON.stringify(messages));
+        const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
+  
+        // Filter and store only messages with null GroupGroupId
+        const filteredMessages = newMessages.filter(message => message.GroupGroupId === null);
+        const updatedMessages = filteredMessages.slice(-10);
+  
+        localStorage.setItem('messages', JSON.stringify(updatedMessages));
         messageList.innerHTML = '';
-
-        messages.forEach(message => {
+  
+        updatedMessages.forEach(message => {
           appendMessage(message);
         });
       })
@@ -113,9 +111,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         console.error('Error retrieving messages:', error);
       });
   }
-
-  // loadMessagesFromLocalStorage();
-  // setInterval(getNewMessages, 1000);
+    
+   loadMessagesFromLocalStorage();
+   setInterval(getNewMessages, 1000);
 
   document.getElementById('log').addEventListener('click', ()=>{
     window.location.href = '/login';
@@ -170,33 +168,47 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (response.status === 200) {
         const participationData = response.data;
         const groupData = participationData.groupData;
-        const userId = decode.userId; // Assuming 'decode' contains the user information
+        const userId = decode.userId; 
         
         const associatedGroupData = groupData.filter(group => group.userId === userId);
-        const groupNames = associatedGroupData.map(group => group.GroupGroupId);
+        const groupIds = associatedGroupData.map(group => group.GroupGroupId);
+
+        const groupNamesResponse = await axios.get("/group-names");
+        const groupNamesData = groupNamesResponse.data;
     
         const groupContainer = document.getElementById("grouplist");
         groupContainer.innerHTML = "";
     
-        groupNames.forEach(groupName => {
-          const button = document.createElement("button");
-          button.textContent = groupName;
-          button.classList.add("group-button");
-          button.style.margin = "5px";
-          button.style.padding = "10px";
-          button.style.backgroundColor = "red";
-          button.style.color = "white";
-          button.style.border = "none";
-          button.style.cursor = "pointer";
-          button.addEventListener("mouseenter", () => {
-            button.style.backgroundColor = "blue";
-          });
-          
-          button.addEventListener("mouseleave", () => {
+        groupIds.forEach(groupId => {
+          const group = groupNamesData.groupName.find(group => group.group_id == groupId);
+          if (group) {
+            const button = document.createElement("button");
+            button.textContent = group.group_name;
+            button.classList.add("group-button");
+            button.id = group.group_id;
+            button.style.margin = "5px";
+            button.style.padding = "10px";
             button.style.backgroundColor = "red";
-          });
-          groupContainer.appendChild(button);
+            button.style.color = "black";
+            button.style.fontWeight = 'bold';
+            button.style.border = "none";
+            button.style.borderRadius = '8px'
+            button.style.cursor = "pointer";
+  
+            button.addEventListener("mouseenter", () => {
+              button.style.backgroundColor = "blue";
+            });
+  
+            button.addEventListener("mouseleave", () => {
+              button.style.backgroundColor = "red";
+            });
 
+            button.addEventListener("click", () => {
+              handleGroupButtonClick(group.group_id, group.group_name);
+            });
+
+            groupContainer.appendChild(button);
+          }
         });
       } else {
         console.error("Failed to retrieve user participation data");
@@ -207,7 +219,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
     
   displayGroupNames();
-    
 
+  function handleGroupButtonClick(groupId, groupName) {
+    window.location.href = `/group-chat/${groupId}+${groupName}`;
+    }
+    
 });
 
