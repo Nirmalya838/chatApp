@@ -74,19 +74,21 @@ exports.createGroup = async (req, res, next) => {
       const group = await Group.findByPk(groupId, {
         include: {
           model: User,
-          attributes: ['name'],
+          attributes: ['id','name'],
         },
       });
   
       if (!group) {
         return res.status(404).json({ message: 'Group not found' });
       }
+      const adminId = group.adminId;
       const members = group.users.map(user => ({
         id: user.id,
         name: user.name,
+        
       }));
       
-      res.status(200).json({ members });
+      res.status(200).json({ members, adminId });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Internal server error' });

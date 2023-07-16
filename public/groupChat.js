@@ -3,7 +3,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   function showMembers(){
     const groupMembers = sessionStorage.getItem('groupMembers');
+    const admin = sessionStorage.getItem('Admin');
     const members = JSON.parse(groupMembers);
+    const Admin = JSON.parse(admin);
     const memberList = document.getElementById('groupuserlist');
     members.forEach(member => {
       const listItem = document.createElement('li');
@@ -11,6 +13,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       const button = document.createElement('button');
       button.textContent = 'Delete User';
       button.id =`deleteButton_${member.id}`;
+
+      if (member.id === Admin ) {
+        listItem.textContent += ' (Admin)';
+        listItem.style.fontWeight = 'bold';
+      }
+  
+
       listItem.appendChild(button);
       memberList.appendChild(listItem);
     });
