@@ -35,10 +35,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   showMembers();
   
   async function handleDeleteUser(userId,Group_Id) {
+    const token = sessionStorage.getItem('token');
+    const loggedInUserId = parseJwt(token).userId;
+    //const admin = sessionStorage.getItem('Admin')
+    console.log(loggedInUserId);
+
   const adminId = parseInt(sessionStorage.getItem('Admin'), 10);
+  console.log(adminId)
     
-    
-    
+ if (loggedInUserId === adminId) {
+  
     try {
       const response = await axios.delete(`/groups/${Group_Id}/delete/${userId}`);
 
@@ -52,7 +58,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
     
   }
-
+   else{
+    console.log('you are not admin')
+   }
+  }
 
   const url = new URL(window.location.href);
   const pathname = url.pathname;
