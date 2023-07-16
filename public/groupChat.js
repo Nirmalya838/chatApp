@@ -4,8 +4,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   function showMembers(){
     const groupMembers = sessionStorage.getItem('groupMembers');
     const admin = sessionStorage.getItem('Admin');
+    const group_id = sessionStorage.getItem('Group_Id');
+    
     const members = JSON.parse(groupMembers);
     const Admin = JSON.parse(admin);
+    const  Group_Id= JSON.parse(group_id);
+    
+    
+ 
     const memberList = document.getElementById('groupuserlist');
     members.forEach(member => {
       const listItem = document.createElement('li');
@@ -18,14 +24,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         listItem.textContent += ' (Admin)';
         listItem.style.fontWeight = 'bold';
       }
-  
+      
+      button.addEventListener('click', () => { handleDeleteUser(member.id,Group_Id);});
+      
 
       listItem.appendChild(button);
       memberList.appendChild(listItem);
     });
   }
-
   showMembers();
+  
+  async function handleDeleteUser(userId,Group_Id) {
+  const adminId = parseInt(sessionStorage.getItem('Admin'), 10);
+    
+    
+    
+    try {
+      const response = await axios.delete(`/groups/${Group_Id}/delete/${userId}`);
+
+    console.log(response.data.message);
+    console.log(`User with ID ${userId} deleted`);
+    const deleteButton = document.getElementById(`deleteButton_${userId}`);
+    const listItem = deleteButton.parentNode;
+    listItem.parentNode.removeChild(listItem);
+  } catch (error) {
+    console.error(error.response.data.message);
+  }
+    
+  }
+
 
   const url = new URL(window.location.href);
   const pathname = url.pathname;

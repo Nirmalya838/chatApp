@@ -82,13 +82,14 @@ exports.createGroup = async (req, res, next) => {
         return res.status(404).json({ message: 'Group not found' });
       }
       const adminId = group.adminId;
+      const group_id = group.group_id;
       const members = group.users.map(user => ({
         id: user.id,
         name: user.name,
         
       }));
       
-      res.status(200).json({ members, adminId });
+      res.status(200).json({ members, adminId ,group_id});
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Internal server error' });
@@ -96,3 +97,22 @@ exports.createGroup = async (req, res, next) => {
   };
   
   
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const groupId = req.params.Group_Id; 
+    const userId = req.params.userId;
+
+    // Delete the user from the groupuser table based on the groupId and userId
+    await GroupUser.destroy({
+      where: {
+        GroupGroupId: groupId,
+        userId: userId,
+      },
+    });
+
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

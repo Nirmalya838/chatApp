@@ -232,8 +232,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       .then(data => {
         const members = data.members;
         const adminId = data.adminId;
+        const group_id = data.group_id
         sessionStorage.setItem('groupMembers', JSON.stringify(members));
         sessionStorage.setItem('Admin', JSON.stringify(adminId));
+        sessionStorage.setItem('Group_Id', JSON.stringify(group_id));
         window.location.href = `/group-chat/${groupId}+${groupName}`;
         console.log('Group Members:', members);
         // showMembers();

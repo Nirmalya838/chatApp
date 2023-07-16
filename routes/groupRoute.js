@@ -13,6 +13,7 @@ router.get('/groupusers', groupController.groupUsers);
 
 router.get('/groups/:groupId/members',groupController.getGroupMembers);
 
+router.delete('/groups/:Group_Id/delete/:userId', groupController.deleteUser);
 
 // // Route to promote a user to admin within a group
 // router.post('/groups/:groupId/makeAdmin/:userId', async (req, res) => {
