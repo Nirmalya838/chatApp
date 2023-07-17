@@ -26,7 +26,7 @@ const GroupUser = sequelize.define('GroupUser', {
     },
   },
   isAdmin: {
-    type: Sequelize.BOOLEAN, 
+    type: Sequelize.INTEGER, 
     defaultValue: false, 
   },
 });

@@ -233,7 +233,6 @@ async function addChat(event) {
   displayGroupNames();
 
   function handleGroupButtonClick(groupId, groupName) {
-    //window.location.href = `/group-chat/${groupId}+${groupName}`;
 
     // Add code to fetch and display group members' names
     fetch(`/groups/${groupId}/members`)
@@ -243,11 +242,9 @@ async function addChat(event) {
         const adminId = data.adminId;
         const group_id = data.group_id;
         sessionStorage.setItem('groupMembers', JSON.stringify(members));
-        sessionStorage.setItem('Admin', JSON.stringify(adminId));
+        localStorage.setItem('Admin', JSON.stringify(adminId));
         sessionStorage.setItem('Group_Id', JSON.stringify(group_id));
         window.location.href = `/group-chat/${groupId}+${groupName}`;
-        console.log('Group Members:', members);
-        // showMembers();
       })
       .catch(error => console.error('Error retrieving group members:', error));
   }

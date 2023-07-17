@@ -120,7 +120,7 @@ exports.makeaAdmin = async(req,res,next)=>{
   try {
     const groupId = req.params.Group_Id;
     const userId = req.params.userId;
-    console.lo(groupId,userId)
+    console.log(groupId,userId)
 
     // Update the groupuser table in the database to set the adminId for the specified groupId
     await GroupUser.update(
@@ -140,4 +140,30 @@ exports.makeaAdmin = async(req,res,next)=>{
     res.status(500).json({ message: 'Failed to update user role.' });
   }
 
+}
+exports.addNewUser = async(req,res,next)=>{
+  try{
+const groupId = parseInt(req.params.groupId, 10);
+  const userId = req.body.userId;
+
+  // Find the group by ID
+  const group = Group.find(group => group.id === groupId);
+
+  if (!group) {
+    return res.status(404).json({ message: 'Group not found.' });
+  }
+
+  // Check if the user is already a member of the group
+  if (group.members.includes(userId)) {
+    return res.status(400).json({ message: 'User is already a member of the group.' });
+  }
+
+  // Add the user to the group
+  group.members.push(userId);
+  
+}
+
+catch (error) {
+  return res.status(200).json({ message: 'User added to the group successfully.' });
+}
 }

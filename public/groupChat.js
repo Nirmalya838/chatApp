@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   function showMembers() {
     const groupMembers = sessionStorage.getItem('groupMembers');
-    const admin = sessionStorage.getItem('Admin');
+    const admin = localStorage.getItem('Admin');
     const group_id = sessionStorage.getItem('Group_Id');
     const token = sessionStorage.getItem('token');
     const loggedInUserId = parseJwt(token).userId;
@@ -64,11 +64,71 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   showMembers();
+  async function handleInviteUser(Group_Id) {
+    try {
+      // Fetch all users from the server
+      const response = await axios.get('/all-users');
+      const allUsers = response.data;
+      console.log(allUsers)
+      // Fetch the current members of the group from the server
+      const membersResponse = await axios.get(`/groups/${Group_Id}/members`);
+      const groupMembers = membersResponse.data.members;
+      console.log(groupMembers)
+      // Filter out the users who are already members of the group
+      const nonGroupMembers = allUsers.filter(user => !groupMembers.some(members=> members.id === user.id));
+      console.log(nonGroupMembers)
+      console.log("hi")
+  
+      // Create a popup or dropdown menu to display the list of non-group members
+      const invitePopup = document.createElement('div');
+      invitePopup.style.backgroundColor = 'white';
+      invitePopup.style.padding = '10px';
+      invitePopup.style.border = '1px solid #ccc';
+      invitePopup.style.position = 'absolute';
+      invitePopup.style.top = '50%';
+      invitePopup.style.left = '50%';
+      invitePopup.style.transform = 'translate(-50%, -50%)';
+  
+      // Display the list of non-group members in the popup or dropdown menu
+      nonGroupMembers.forEach(member => {
+        const userItem = document.createElement('div');
+        userItem.textContent = member.name;
+        const addButton = document.createElement('button');
+      addButton.textContent = 'Add';
+      addButton.id = `addButton_${member.id}`;
+      addButton.addEventListener('click', () => {
+        handleAddUser(member.id, Group_Id);
+        invitePopup.remove(); // Close the popup after adding the user
+      });
+
+      userItem.appendChild(addButton);
+      invitePopup.appendChild(userItem);
+    });
+
+    // Add the popup or dropdown menu to the document body
+    document.body.appendChild(invitePopup);
+    } catch (error) {
+      console.error('Error fetching users or group members:', error);
+    }
+  }
+  
+
+  async function handleAddUser(userId, Group_Id) {
+    try {
+      
+      const response = await axios.post(`/groups/${Group_Id}/addUser`, { userId });
+      console.log(response.data.message);
+      
+    } catch (error) {
+      console.error('Error adding user to the group:', error);
+      
+    }
+  }
   
   async function handleDeleteUser(userId, Group_Id) {
     const token = sessionStorage.getItem('token');
     const loggedInUserId = parseJwt(token).userId;
-    const adminId = parseInt(sessionStorage.getItem('Admin'), 10);
+    const adminId = parseInt(localStorage.getItem('Admin'), 10);
   
     if (loggedInUserId === adminId) {
       try {
@@ -95,23 +155,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   
 
   async function handleMakeAdmin(userId, Group_Id) {
-    console.log("make admin")
-    const token = sessionStorage.getItem('token');
+    const token = sessioSntorage.getItem('token');
     const loggedInUserId = parseJwt(token).userId;
   
-    const adminId = parseInt(sessionStorage.getItem('Admin'), 10);
+    const adminId = parseInt(localStorage.getItem('Admin'), 10);
   
-    if (loggedInUserId === adminId) {
+    if (loggedInUserId == adminId) {
       try {
         // Update the user's role to admin in the backend
         const response = await axios.put(`/groups/${Group_Id}/makeAdmin/${userId}`);
         console.log(response.data.message);
-  
-        // Update the admin value in sessionStorage
-        //sessionStorage.setItem('Admin', userId);
-  
-        // Refresh the member list
-        //showMembers();
+        let Admin = JSON.parse(localStorage.getItem('Admin'));
+        let newAdmin = [Admin];
+        newAdmin.push(userId);
+        console.log(newAdmin);
+        localStorage.setItem('Admin', JSON.stringify(newAdmin));
+        
       } catch (error) {
         console.error(error.response.data.message);
       }
