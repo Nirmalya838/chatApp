@@ -116,3 +116,28 @@ exports.deleteUser = async (req, res, next) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+exports.makeaAdmin = async(req,res,next)=>{
+  try {
+    const groupId = req.params.Group_Id;
+    const userId = req.params.userId;
+    console.lo(groupId,userId)
+
+    // Update the groupuser table in the database to set the adminId for the specified groupId
+    await GroupUser.update(
+      { isAdmin: false }, // Set previous admin's isAdmin to false
+      { where: { GroupGroupId: groupId, isAdmin: true } }
+    );
+
+    await GroupUser.update(
+      { isAdmin: true }, // Set the new admin's isAdmin to true
+      { where: { GroupGroupId: groupId,
+        userId: userId, } }
+    );
+
+    res.status(200).json({ message: 'User role updated to admin.' });
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    res.status(500).json({ message: 'Failed to update user role.' });
+  }
+
+}

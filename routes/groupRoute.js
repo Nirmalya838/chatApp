@@ -15,6 +15,8 @@ router.get('/groups/:groupId/members',groupController.getGroupMembers);
 
 router.delete('/groups/:Group_Id/delete/:userId', groupController.deleteUser);
 
+router.put('/groups/:Group_Id/makeAdmin/:userId', groupController.makeaAdmin);
+
 // // Route to promote a user to admin within a group
 // router.post('/groups/:groupId/makeAdmin/:userId', async (req, res) => {
 //   const groupId = req.params.groupId;
