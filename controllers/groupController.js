@@ -26,8 +26,6 @@ exports.createGroup = async (req, res, next) => {
       }
     });
     await group.addUsers(userObjects);
-
-    console.log('Group created:', group);
     res.json({ success: true, group });
   } catch (error) {
     console.error('Error creating group:', error);
@@ -141,29 +139,29 @@ exports.makeaAdmin = async(req,res,next)=>{
   }
 
 }
+
 exports.addNewUser = async(req,res,next)=>{
+
   try{
-const groupId = parseInt(req.params.groupId, 10);
+
+  const groupId = parseInt(req.body.Group_Id);
   const userId = req.body.userId;
 
-  // Find the group by ID
-  const group = Group.find(group => group.id === groupId);
+  const group = await Group.findByPk( groupId);
 
   if (!group) {
     return res.status(404).json({ message: 'Group not found.' });
   }
 
-  // Check if the user is already a member of the group
-  if (group.members.includes(userId)) {
-    return res.status(400).json({ message: 'User is already a member of the group.' });
-  }
-
-  // Add the user to the group
-  group.members.push(userId);
+  const user = await User.findByPk(userId);
+  await group.addUser(user);
+  return res.status(200).json({ id:user.id, name: user.name  });
   
 }
 
 catch (error) {
-  return res.status(200).json({ message: 'User added to the group successfully.' });
+  console.log(error)
+  return res.status(200).json({ message: error });
 }
 }
+

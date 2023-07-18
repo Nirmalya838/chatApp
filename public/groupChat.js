@@ -113,11 +113,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
 
-  async function handleAddUser(userId, Group_Id) {
+  async function handleAddUser(userId) {
     try {
       
-      const response = await axios.post(`/groups/${Group_Id}/addUser`, { userId });
-      console.log(response.data.message);
+      const url = new URL(window.location.href);
+      const pathname = url.pathname;
+      const Group_Id = decodeURIComponent(pathname.substring(pathname.lastIndexOf('/') + 1).split('+')[0]);
+      const response = await axios.post(`/groups/${Group_Id}/addUser`, {userId, Group_Id});
+      const groupMembers = sessionStorage.getItem('groupMembers');
+      const members = JSON.parse(groupMembers);
+      members.push(response.data);
+      const newmembers = JSON.stringify(members); 
+      sessionStorage.setItem('groupMembers', newmembers);
+      location.reload();
       
     } catch (error) {
       console.error('Error adding user to the group:', error);
