@@ -11,21 +11,27 @@ exports.createGroup = async (req, res, next) => {
 
     const user = await User.findOne({
       where: {
-        name: created_by
-      }
+        name: created_by,
+      },
     });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    await group.setAdmin(user);
+
+    // await group.setAdmin(user);
+
+    await group.addUsers(user, { through: { isAdmin: true } });
 
     const userObjects = await User.findAll({
       where: {
-        name: participants
-      }
+        name: participants,
+      },
     });
+
     await group.addUsers(userObjects);
+
+    console.log('Group created:', group);
     res.json({ success: true, group });
   } catch (error) {
     console.error('Error creating group:', error);
@@ -66,28 +72,37 @@ exports.createGroup = async (req, res, next) => {
     }
   }
 
+  
   exports.getGroupMembers = async (req, res, next) => {
     try {
       const groupId = req.params.groupId;
       const group = await Group.findByPk(groupId, {
-        include: {
-          model: User,
-          attributes: ['id','name'],
-        },
+        include: [
+          {
+            model: User,
+            attributes: ['id', 'name'],
+            through: {
+              attributes: ['isAdmin'], // Include the junction table attributes
+            },
+          },
+        ],
       });
   
       if (!group) {
         return res.status(404).json({ message: 'Group not found' });
       }
+  
       const adminId = group.adminId;
       const group_id = group.group_id;
-      const members = group.users.map(user => ({
+  
+      // Extract members and their corresponding isAdmin values from the junction table
+      const members = group.users.map((user) => ({
         id: user.id,
         name: user.name,
-        
+        isAdmin: user.GroupUser.isAdmin, // Access the isAdmin value from the junction table
       }));
-      
-      res.status(200).json({ members, adminId ,group_id});
+  
+      res.status(200).json({ members, adminId, group_id });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Internal server error' });
@@ -119,12 +134,6 @@ exports.makeaAdmin = async(req,res,next)=>{
     const groupId = req.params.Group_Id;
     const userId = req.params.userId;
     console.log(groupId,userId)
-
-    // Update the groupuser table in the database to set the adminId for the specified groupId
-    await GroupUser.update(
-      { isAdmin: false }, // Set previous admin's isAdmin to false
-      { where: { GroupGroupId: groupId, isAdmin: true } }
-    );
 
     await GroupUser.update(
       { isAdmin: true }, // Set the new admin's isAdmin to true

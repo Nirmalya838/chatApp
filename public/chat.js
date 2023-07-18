@@ -69,8 +69,7 @@ async function addChat(event) {
     let response = await axios.post(
       "/add-chat",
       obj,
-      { headers: { Authorization: token }, withCredentials: true } // Include the token and send cookies with the request
-    );
+      { headers: { Authorization: token }});
 
     const newMessages = response.data;
     const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
@@ -233,20 +232,17 @@ async function addChat(event) {
   displayGroupNames();
 
   function handleGroupButtonClick(groupId, groupName) {
-
-    // Add code to fetch and display group members' names
+    // Add code to fetch and display group members' names and isAdmin status
     fetch(`/groups/${groupId}/members`)
       .then(response => response.json())
       .then(data => {
         const members = data.members;
-        const adminId = data.adminId;
         const group_id = data.group_id;
-        sessionStorage.setItem('groupMembers', JSON.stringify(members));
-        localStorage.setItem('Admin', JSON.stringify(adminId));
         sessionStorage.setItem('Group_Id', JSON.stringify(group_id));
         window.location.href = `/group-chat/${groupId}+${groupName}`;
       })
       .catch(error => console.error('Error retrieving group members:', error));
   }
+  
 
 });

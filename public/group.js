@@ -30,8 +30,6 @@ function parseJwt(token) {
       participants: participants,
       created_by: user.username
     };
-
-    console.log(groupData);
     
     try {
         const response = await axios.post('/createGroup/', groupData, {
