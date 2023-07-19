@@ -45,7 +45,28 @@ if (token) {
 
 const decode = parseJwt(token);
 const name = decode.username;
-outputUserJoined(name);
+//outputUserJoined(name);
+
+const socket = io('http://localhost:3000')
+
+socket.on('connect', () => {
+  console.log(socket.id);
+  outputUserJoined(name);
+})
+
+socket.on('receive-message', (usermsg, username) => {
+
+
+  // Create a new object containing both username and usermsg
+  const messageData = {
+    username: username,
+    message: usermsg
+  };
+
+  // Call the appendMessage function with the messageData object
+  appendMessage(messageData);
+});
+
 
 const messageList = document.getElementById('message-list');
 
@@ -73,11 +94,11 @@ async function addChat(event) {
 
     const newMessages = response.data;
     const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
-
+    socket.emit('send-message', obj.GroupGroupId, obj.message, obj.username);
     const filteredMessages = storedMessages.filter(message => message.GroupGroupId === null);
     const updatedMessages = [...filteredMessages, ...newMessages].slice(-10);
-
     localStorage.setItem('messages', JSON.stringify(updatedMessages));
+    getNewMessages();
     document.getElementById('msg').value = '';
     document.getElementById('msg').focus();
   } catch (err) {
@@ -85,7 +106,7 @@ async function addChat(event) {
   }
 }
 
-  function appendMessage({ message, username }) {
+  function appendMessage({message, username}) {
     const listItem = document.createElement('li');
     listItem.innerHTML = `<strong>${username}</strong> ${message}`;
     messageList.appendChild(listItem);
@@ -122,7 +143,7 @@ async function addChat(event) {
   }
 
   loadMessagesFromLocalStorage();
-  setInterval(getNewMessages, 1000);
+  getNewMessages();
 
   document.getElementById('log').addEventListener('click', () => {
     window.location.href = '/login';

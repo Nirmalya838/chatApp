@@ -208,14 +208,45 @@ async function handleAddUser(userId, Group_Id) {
   }
 }
 
+function outputUserJoined(username) {
+  const userlist = document.getElementById('userlist');
+  let user = document.createElement('li');
+  user.textContent = `${username} joined.`;
+  userlist.appendChild(user);
+}
+
 
 
 document.addEventListener('DOMContentLoaded', async () => {
   
   const token = sessionStorage.getItem('token');
   const loggedInUserId = parseJwt(token).userId;
+  const grpid = sessionStorage.getItem('Group_Id');
+  const name = parseJwt(token).username;
   
   showMembers();
+
+  const socket = io('http://localhost:3000')
+
+  socket.on('connect', () => {
+  console.log(socket.id);
+})
+
+socket.emit('join-room', grpid, name, welcome => {
+  outputUserJoined("welcome in groupchat", name);
+})
+
+socket.on('receive-message', (usermsg, username) => {
+  console.log(usermsg);
+  // Create a new object containing both username and usermsg
+  const messageData = {
+    username: username,
+    message: usermsg
+  };
+  console.log(messageData);
+  // Call the appendMessage function with the messageData object
+  appendGroupMessage(messageData);
+});
 
   
 
@@ -247,8 +278,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         obj,
         { headers: { Authorization: token } }
       );
+      socket.emit('send-message', obj.groupId, obj.message, obj.username);
       document.getElementById('grpMsg').value = '';
       document.getElementById('grpMsg').focus();
+      displayGroupMessages();
     } catch (err) {
       console.log(err);
     }
@@ -281,10 +314,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  setInterval(async () => {
-    await getGroupMessages();
-    await displayGroupMessages();
-  }, 1000);
+  
+      getGroupMessages();
+     displayGroupMessages();
+  
 
   document.getElementById('leaveGroup').addEventListener('click', () => {
     window.location.href = document.referrer;
