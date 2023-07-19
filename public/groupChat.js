@@ -82,21 +82,29 @@ async function handleMakeAdmin(userId, Group_Id) {
     const members = data.members;
     const adminUserIds = members.filter(member => member.isAdmin).map(member => member.id);
 
+    let isAdmin = false; 
+
     for (let i = 0; i < adminUserIds.length; i++) {
       if (loggedInUserId == adminUserIds[i]) {
+        isAdmin = true;
         try {
           const response = await axios.put(`/groups/${Group_Id}/makeAdmin/${userId}`);
           console.log(response.data.message);
-          document.getElementById('groupuserlist').textContent='';
-          showMembers();
-          } catch (error) {
+        } catch (error) {
           console.error(error.response.data.message);
         }
-      } else {
-        console.log('You are not an admin');
-        alert('You are not an admin');
+        break; 
       }
     }
+
+    if (!isAdmin) {
+      console.log('You are not an admin');
+      alert('You are not an admin');
+      return; 
+    }
+
+    document.getElementById('groupuserlist').textContent = '';
+    await showMembers();
   } catch (err) {
     console.error("Error retrieving group members:", err);
   }
@@ -108,31 +116,37 @@ async function handleDeleteUser(userId, Group_Id) {
   const token = sessionStorage.getItem('token');
   const loggedInUserId = parseJwt(token).userId;
   const groupId = JSON.parse(sessionStorage.getItem('Group_Id'));
-  
+
   try {
     const response = await axios.get(`/groups/${groupId}/members`);
     const data = response.data;
     const members = data.members;
     const adminUserIds = members.filter(member => member.isAdmin).map(member => member.id);
 
-  for(let i = 0; i < adminUserIds.length; i++) {
-  if (loggedInUserId == adminUserIds[i]) {
-    try {
-      const response = await axios.delete(`/groups/${Group_Id}/delete/${userId}`);
-      console.log(`User with ID ${userId} deleted`);
-      const deleteButton = document.getElementById(`deleteButton_${userId}`);
-      const listItem = deleteButton.parentNode;
-      listItem.parentNode.removeChild(listItem);
-    } catch (error) {
-      console.error(error.response.data.message);
+    let isAdmin = false;
+
+    for (let i = 0; i < adminUserIds.length; i++) {
+      if (loggedInUserId == adminUserIds[i]) {
+        isAdmin = true;
+        try {
+          const response = await axios.delete(`/groups/${Group_Id}/delete/${userId}`);
+          console.log(`User with ID ${userId} deleted`);
+          const deleteButton = document.getElementById(`deleteButton_${userId}`);
+          const listItem = deleteButton.parentNode;
+          listItem.parentNode.removeChild(listItem);
+        } catch (error) {
+          console.error(error.response.data.message);
+        }
+        break; 
+      }
     }
-  } else {
-    alert('You are not an admin');
+
+    if (!isAdmin) {
+      alert('You are not an admin'); 
+    }
+  } catch (err) {
+    console.error("Error deleting group members:", err);
   }
- }
-} catch (err) {
-  console.error("Error deleting group members:", err);
- }
 }
 
 
@@ -148,7 +162,6 @@ async function handleInviteUser(Group_Id) {
     const nonGroupMembers = allUsers.filter(user => !groupMembers.some(members=> members.id === user.id));
     console.log(nonGroupMembers)
 
-    // Create a popup or dropdown menu to display the list of non-group members
     const invitePopup = document.createElement('div');
     invitePopup.style.backgroundColor = 'white';
     invitePopup.style.padding = '30px';
@@ -167,14 +180,13 @@ async function handleInviteUser(Group_Id) {
     addButton.id = `addButton_${member.id}`;
     addButton.addEventListener('click', () => {
       handleAddUser(member.id, Group_Id);
-      invitePopup.remove(); // Close the popup after adding the user
+      invitePopup.remove(); 
     });
 
     userItem.appendChild(addButton);
     invitePopup.appendChild(userItem);
   });
 
-  // Add the popup or dropdown menu to the document body
   document.body.appendChild(invitePopup);
   } catch (error) {
     console.error('Error fetching users or group members:', error);
@@ -269,15 +281,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Refresh the displayed messages periodically
   setInterval(async () => {
     await getGroupMessages();
     await displayGroupMessages();
   }, 1000);
-
-  setInterval(async () => {
-    await showMembers();
-  }, 5000);
 
   document.getElementById('leaveGroup').addEventListener('click', () => {
     window.location.href = document.referrer;
