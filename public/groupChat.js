@@ -1,254 +1,22 @@
-function parseJwt(token) {
-  var base64Url = token.split(".")[1];
-  var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-  var jsonPayload = decodeURIComponent(
-    window
-      .atob(base64)
-      .split("")
-      .map(function (c) {
-        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-      })
-      .join("")
-  );
-
-  return JSON.parse(jsonPayload);
-}
-
-
-async function showMembers() {
-
-  const groupId = JSON.parse(sessionStorage.getItem('Group_Id'));
-  const token = sessionStorage.getItem('token');
-  const loggedInUserId = parseJwt(token).userId;
-  try {
-    const response = await axios.get(`/groups/${groupId}/members`);
-    const data = await response.data;
-    const members = data.members;
-    const group_id = data.group_id;
-    const adminUserIds = members.filter(member => member.isAdmin).map(member => member.id);
-
+document.addEventListener('DOMContentLoaded', async () => {
+  
+  
+  function showMembers(){
+    const groupMembers = sessionStorage.getItem('groupMembers');
+    const members = JSON.parse(groupMembers);
     const memberList = document.getElementById('groupuserlist');
-    memberList.innerHTML='';
     members.forEach(member => {
       const listItem = document.createElement('li');
       listItem.textContent = member.name;
-
-      for (let i = 0; i < adminUserIds.length; i++) {
-        if (member.id == adminUserIds[i]) {
-          listItem.textContent += ' (Admin)';
-          listItem.style.fontWeight = 'bold';
-        }
-      }
-
       const button = document.createElement('button');
-      const makeAdmin = document.createElement('button');
       button.textContent = 'Delete User';
-      button.id = `deleteButton_${member.id}`;
-      makeAdmin.textContent = 'Make ADMIN';
-      makeAdmin.id = `makeAdminButton_${member.id}`;
-
-      button.addEventListener('click', () => { handleDeleteUser(member.id, groupId); });
-      makeAdmin.addEventListener('click', () => { handleMakeAdmin(member.id, groupId); });
-
+      button.id =`deleteButton_${member.id}`;
       listItem.appendChild(button);
-      listItem.appendChild(makeAdmin);
       memberList.appendChild(listItem);
     });
-
-    for (let i = 0; i < adminUserIds.length; i++) {
-      if (loggedInUserId == adminUserIds[i]) {
-        const inviteButton = document.createElement('button');
-        inviteButton.textContent = 'Invite User';
-        inviteButton.id = 'inviteButton';
-        inviteButton.addEventListener('click', () => { handleInviteUser(groupId); });
-        memberList.appendChild(inviteButton);
-      }
-    }
-  } catch (error) {
-    console.error('Error retrieving group members:', error);
   }
-}
 
-
-
-async function handleMakeAdmin(userId, Group_Id) {
-  const token = sessionStorage.getItem('token');
-  const loggedInUserId = parseJwt(token).userId;
-  const groupId = JSON.parse(sessionStorage.getItem('Group_Id'));
-
-  try {
-    const response = await axios.get(`/groups/${groupId}/members`);
-    const data = response.data;
-    const members = data.members;
-    const adminUserIds = members.filter(member => member.isAdmin).map(member => member.id);
-
-    let isAdmin = false; 
-
-    for (let i = 0; i < adminUserIds.length; i++) {
-      if (loggedInUserId == adminUserIds[i]) {
-        isAdmin = true;
-        try {
-          const response = await axios.put(`/groups/${Group_Id}/makeAdmin/${userId}`);
-          console.log(response.data.message);
-        } catch (error) {
-          console.error(error.response.data.message);
-        }
-        break; 
-      }
-    }
-
-    if (!isAdmin) {
-      console.log('You are not an admin');
-      alert('You are not an admin');
-      return; 
-    }
-
-    document.getElementById('groupuserlist').textContent = '';
-    await showMembers();
-  } catch (err) {
-    console.error("Error retrieving group members:", err);
-  }
-}
-
-
-
-async function handleDeleteUser(userId, Group_Id) {
-  const token = sessionStorage.getItem('token');
-  const loggedInUserId = parseJwt(token).userId;
-  const groupId = JSON.parse(sessionStorage.getItem('Group_Id'));
-
-  try {
-    const response = await axios.get(`/groups/${groupId}/members`);
-    const data = response.data;
-    const members = data.members;
-    const adminUserIds = members.filter(member => member.isAdmin).map(member => member.id);
-
-    let isAdmin = false;
-
-    for (let i = 0; i < adminUserIds.length; i++) {
-      if (loggedInUserId == adminUserIds[i]) {
-        isAdmin = true;
-        try {
-          const response = await axios.delete(`/groups/${Group_Id}/delete/${userId}`);
-          console.log(`User with ID ${userId} deleted`);
-          const deleteButton = document.getElementById(`deleteButton_${userId}`);
-          const listItem = deleteButton.parentNode;
-          listItem.parentNode.removeChild(listItem);
-        } catch (error) {
-          console.error(error.response.data.message);
-        }
-        break; 
-      }
-    }
-
-    if (!isAdmin) {
-      alert('You are not an admin'); 
-    }
-  } catch (err) {
-    console.error("Error deleting group members:", err);
-  }
-}
-
-
-async function handleInviteUser(Group_Id) {
-  try {
-
-    const response = await axios.get('/all-users');
-    const allUsers = response.data;
-    // Fetch the current members of the group from the server
-    const membersResponse = await axios.get(`/groups/${Group_Id}/members`);
-    const groupMembers = membersResponse.data.members;
-    // Filter out the users who are already members of the group
-    const nonGroupMembers = allUsers.filter(user => !groupMembers.some(members=> members.id === user.id));
-    console.log(nonGroupMembers)
-
-    const invitePopup = document.createElement('div');
-    invitePopup.style.backgroundColor = 'white';
-    invitePopup.style.padding = '30px';
-    invitePopup.style.border = '1px solid #ccc';
-    invitePopup.style.position = 'absolute';
-    invitePopup.style.top = '50%';
-    invitePopup.style.left = '50%';
-    invitePopup.style.transform = 'translate(-50%, -50%)';
-
-    // Display the list of non-group members in the popup or dropdown menu
-    nonGroupMembers.forEach(member => {
-      const userItem = document.createElement('div');
-      userItem.textContent = member.name;
-      const addButton = document.createElement('button');
-    addButton.textContent = 'Add';
-    addButton.id = `addButton_${member.id}`;
-    addButton.addEventListener('click', () => {
-      handleAddUser(member.id, Group_Id);
-      invitePopup.remove(); 
-    });
-
-    userItem.appendChild(addButton);
-    invitePopup.appendChild(userItem);
-  });
-
-  document.body.appendChild(invitePopup);
-  } catch (error) {
-    console.error('Error fetching users or group members:', error);
-  }
-}
-
-async function handleAddUser(userId, Group_Id) {
-  try {
-    
-    const url = new URL(window.location.href);
-    const pathname = url.pathname;
-    const Group_Id = JSON.parse(sessionStorage.getItem('Group_Id'));
-    const response = await axios.post(`/groups/${Group_Id}/addUser`, {userId, Group_Id});
-    document.getElementById('groupuserlist').textContent='';
-    showMembers();
-  } catch (error) {
-    console.error('Error adding user to the group:', error);
-    
-  }
-}
-
-function outputUserJoined(username) {
-  const userlist = document.getElementById('userlist');
-  let user = document.createElement('li');
-  user.textContent = `${username} joined.`;
-  userlist.appendChild(user);
-}
-
-
-
-document.addEventListener('DOMContentLoaded', async () => {
-  
-  const token = sessionStorage.getItem('token');
-  const loggedInUserId = parseJwt(token).userId;
-  const grpid = sessionStorage.getItem('Group_Id');
-  const name = parseJwt(token).username;
-  
   showMembers();
-
-  const socket = io('http://localhost:3000')
-
-  socket.on('connect', () => {
-  console.log(socket.id);
-})
-
-socket.emit('join-room', grpid, name, welcome => {
-  outputUserJoined("welcome in groupchat", name);
-})
-
-socket.on('receive-message', (usermsg, username) => {
-  console.log(usermsg);
-  // Create a new object containing both username and usermsg
-  const messageData = {
-    username: username,
-    message: usermsg
-  };
-  console.log(messageData);
-  // Call the appendMessage function with the messageData object
-  appendGroupMessage(messageData);
-});
-
-  
 
   const url = new URL(window.location.href);
   const pathname = url.pathname;
@@ -278,10 +46,8 @@ socket.on('receive-message', (usermsg, username) => {
         obj,
         { headers: { Authorization: token } }
       );
-      socket.emit('send-message', obj.groupId, obj.message, obj.username);
       document.getElementById('grpMsg').value = '';
       document.getElementById('grpMsg').focus();
-      displayGroupMessages();
     } catch (err) {
       console.log(err);
     }
@@ -314,17 +80,14 @@ socket.on('receive-message', (usermsg, username) => {
     });
   }
 
-  
-      getGroupMessages();
-     displayGroupMessages();
-  
+  // Refresh the displayed messages periodically
+  setInterval(async () => {
+    await getGroupMessages();
+    await displayGroupMessages();
+  }, 1000);
 
   document.getElementById('leaveGroup').addEventListener('click', () => {
     window.location.href = document.referrer;
   });
   
 });
-
-
-
-

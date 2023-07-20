@@ -1,16 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+
+
 const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io')(server);
-
-
-
 app.use(express.json());
 app.use(express.static(path.join(__dirname,"public")))
 
-app.use(cors({origin: '*'}));
+app.use(cors({origin: 'http://127.0.0.1:3000',
+methods: ['GET', 'POST']}));
 
 const User = require('./models/user');
 const Message = require('./models/message');
@@ -33,28 +31,13 @@ Message.belongsTo(User);
 Group.hasMany(Message);
 Message.belongsTo(Group);
 
+Group.belongsTo(User, { as: 'admin' });
 Group.belongsToMany(User, { through: 'GroupUser' });
 User.belongsToMany(Group, { through: 'GroupUser' });
 
-//SOCKET
-io.on('connection', socket => {
-    console.log('SOCKET CONNECTED')
-    socket.on('join-room', (grpid, username, cb) => {
-        socket.join(grpid);
-        cb(`${username} joined`)
-    })
-    socket.on('send-message', (gid, usermsg, username) => {
-        if (gid == null) {
-            socket.broadcast.emit('receive-message', usermsg, username);
-        } else {
-            socket.to(gid).emit('receive-message', usermsg, username);
-        }
-    })
-})
-
 sequelize.sync()
 .then(result=>{
-    server.listen(process.env.PORT||3000, ()=> console.log('connected to Database'));
+    app.listen(process.env.PORT||3000, ()=> console.log('connected to Database'));
 })
 .catch(err=>{
     console.log(err);

@@ -26,4 +26,3 @@ async function AleradyUser(event) {
     document.getElementById("err").style.color = "red";
   }
 }
-
