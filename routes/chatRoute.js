@@ -14,4 +14,10 @@ router.get('/all-users', chatController.getAllUsers);
 
 router.get('/participatedGroups', chatController.getGroupData);
 
+router.post('/chat/sendfile/:groupId',authentication.authenticated, chatController.uploadFile);
+
+router.post('/chat/sendgroupfile/:groupId',authentication.authenticated, chatController.uploadGroupFile);
+
+
+
 module.exports=router;

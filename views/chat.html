@@ -27,6 +27,8 @@
         </div>
         <div class="chat-form-container">
             <form id="chat-form">
+              <input type="file" id="file">
+              <button class="btn" id="uploadbtn">Upload</button>
                 <input type="text" id="msg" placeholder="enter message" autocomplete="off" name="message" required>
                 <button class="btn" id="add-chat">send</button>
             </form>
@@ -50,6 +52,7 @@
     </div>
     <button id="log" class="leave">Leave Chat</button>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="/chat.js"></script>
     <script src="/group.js"></script>
 </body>
