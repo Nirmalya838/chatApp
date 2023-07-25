@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authentication = require('../middleware/auth');
 const chatController = require('../controllers/chatController');
+const archiveController = require('../controllers/archiveController');
 
 
 router.get('/chat/',chatController.getHomePage);
@@ -18,6 +19,6 @@ router.post('/chat/sendfile/:groupId',authentication.authenticated, chatControll
 
 router.post('/chat/sendgroupfile/:groupId',authentication.authenticated, chatController.uploadGroupFile);
 
-
+router.post('/move-messages', archiveController.moveMessagesToArchivedChat);
 
 module.exports=router;

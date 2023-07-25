@@ -18,6 +18,7 @@ const User = require('./models/user');
 const Message = require('./models/message');
 const Group = require('./models/group');
 const GroupUser = require('./models/groupUser');
+const ArchiveChat = require('./models/archive');
 const sequelize = require('./util/database');
 const signupRouter = require('./routes/signupRoute');
 const loginRouter = require('./routes/loginRoute');
@@ -34,6 +35,12 @@ Message.belongsTo(User);
 
 Group.hasMany(Message);
 Message.belongsTo(Group);
+
+User.hasMany(ArchiveChat);
+ArchiveChat.belongsTo(User);
+
+Group.hasMany(ArchiveChat);
+ArchiveChat.belongsTo(Group);
 
 Group.belongsToMany(User, { through: 'GroupUser' });
 User.belongsToMany(Group, { through: 'GroupUser' });

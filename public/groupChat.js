@@ -310,7 +310,6 @@ async function uploadFile(e){
       
       // Function to check if the message is a link
       function isLink(message) {
-        // Regular expression to match URL patterns (https://stackoverflow.com/a/3809435)
         const urlPattern = new RegExp('^https?://.+');
         return urlPattern.test(message);
       }

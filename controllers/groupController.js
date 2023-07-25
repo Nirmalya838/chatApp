@@ -57,7 +57,7 @@ exports.createGroup = async (req, res, next) => {
   exports.groupChatPage = async (req, res, next) => {
     const groupId = req.params.groupId;
     
-    res.sendFile(path.join(__dirname, '../views/groupChat.html'));
+    res.sendFile(path.join(__dirname, '../views/groupchat.html'));
   };
 
   exports.groupUsers = async (req, res, next) => {

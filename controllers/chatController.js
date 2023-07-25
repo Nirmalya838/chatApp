@@ -7,6 +7,7 @@ const User = require("../models/user");
 const Message = require('../models/message');
 const Group = require('../models/group');
 const GroupUser = require('../models/groupUser');
+const ArchivedChat = require('../models/archive');
 
 exports.getHomePage = (req, res, next) => {
   res.sendFile(path.join(__dirname, "../views/chat.html"));
@@ -159,3 +160,4 @@ function uploadToS3(file){
         res.status(500).json({message:"Something went Wrong",error:err,success:false})
     }
 }    
+
